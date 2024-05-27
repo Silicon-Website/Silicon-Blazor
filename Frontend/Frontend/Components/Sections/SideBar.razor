@@ -1,0 +1,79 @@
+﻿@attribute [StreamRendering]
+
+
+@if(user == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="side-bar">
+        <div class="profile">
+            <img src="~/images/uploads/profiles/@user!.ProfileImage" />
+
+            <EditForm Model="@uploadModel" OnSubmit="HandleProfileUpload">
+                <InputFile id="fileUploader" OnChange="OnInputFileChange" hidden />
+                <label for="fileUploader" class="btn btn-circle btn-circle-sm">
+                    <i class="fa-regular fa-refresh"></i>
+                </label>
+            </EditForm>
+
+            <h5>@user.FirstName @user.LastName</h5>
+            <p class="text-m">@user.Email</p>
+        </div>
+
+        <Frontend.Components.Layout.ManageNavMenu />
+
+    </div>
+}
+
+@code {
+    private ApplicationUser user = default!;
+    private MultipartFormDataContent uploadModel = new MultipartFormDataContent();
+    private IBrowserFile? selectedFile;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserDataAsync();
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+
+    private async Task LoadUserDataAsync()
+    {
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
+    }
+
+    private async Task HandleProfileUpload()
+    {
+        if (selectedFile != null)
+        {
+            using var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)); // Max file size: 10MB
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(selectedFile.ContentType);
+            content.Add(fileContent, "file", selectedFile.Name);
+
+            try
+            {
+                var response = await Http.PostAsync(Environment.GetEnvironmentVariable("FILEPROVIDER_API_URI"), content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadUserDataAsync();
+                    StateHasChanged();
+                }
+            }
+
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+}

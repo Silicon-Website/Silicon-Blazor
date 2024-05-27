@@ -1,0 +1,47 @@
+﻿<header>
+    <div class="container">
+        <a href="/"><img src="/images/Silicon Logotype - Light Mode.svg" id="logo" alt="logo"></a>
+        <div id="menu">
+            <nav>
+
+                <NavLink class="menu-link" href="/">Overview</NavLink>
+                <NavLink class="menu-link" href="/#features">Features</NavLink>
+                <NavLink class="menu-link" href="/#contact">Contact</NavLink>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <a class="menu-link" href="/courses">Courses</a>
+                    </Authorized>
+                </AuthorizeView>
+
+            </nav>
+        </div>
+
+        <div class="btn-switch">
+            <label>Light</label>
+            <div class="switch round">
+                <input type="checkbox" id="toggle">
+                <label class="slider round" for="toggle"></label>
+            </div>
+            <label>Dark</label>
+        </div>
+
+        <div class="account-buttons">
+            <AuthorizeView>
+
+                <Authorized>
+                    <img src="/images/uploads/profiles/avatar.jpg" />
+                    <a class="menu-link btn-gray" href="/account/details"><i class="fa-solid fa-arrow-down-to-square fa-rotate-270"></i>Account details</a>
+                </Authorized>
+
+                <NotAuthorized>
+                    <a class="menu-link btn-gray" href="/signin"><i class="fa-solid fa-arrow-down-to-square fa-rotate-270"></i>Sign in</a>
+                    <a class="menu-link btn-theme" href="/signup"><i class="fa-regular fa-user"></i>Sign up</a>
+                </NotAuthorized>
+            </AuthorizeView>
+
+        </div>
+
+    </div>
+
+</header>

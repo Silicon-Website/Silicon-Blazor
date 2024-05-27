@@ -1,0 +1,66 @@
+
+#signup-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 0px;
+
+    .validation-message {
+        color: rgba(188, 13, 13, 1);
+        font-weight: 400;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 35%;
+
+            .form-content {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+
+                .top-group {
+                    display: flex;
+                    gap: 20px;
+                }
+
+                .input-group {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .semi-bold {
+                    font-weight: 600;
+                }
+
+                .link-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    a {
+                        font-weight: 600;
+                    }
+                }
+
+                .field-validation-error {
+                    color: rgba(153, 0, 0, 0.8);
+                    font-size: 16px;
+                    font-weight: 500;
+                }
+
+                .terms {
+                    display: inline-block;
+                }
+            }
+        }
+    }
+}

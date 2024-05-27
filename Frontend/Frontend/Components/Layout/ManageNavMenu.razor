@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Frontend.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+
+<nav>
+    <NavLink class="text-m" href="/account/details">
+        <i class="fa-regular fa-gear"></i>Account Details
+    </NavLink>
+
+    <NavLink class="text-m" href="/account/notifications">
+        <i class="fa-solid fa-arrow-left-from-bracket"></i>Notifications
+    </NavLink>
+
+    <NavLink class="text-m" href="/">
+        <i class="fa-solid fa-arrow-left-from-bracket"></i>Sign Out
+    </NavLink>
+</nav>
+
+@code {
+    private bool hasExternalLogins;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+    }
+}

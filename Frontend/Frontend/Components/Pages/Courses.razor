@@ -1,0 +1,106 @@
+﻿@page "/courses"
+@attribute [StreamRendering]
+@attribute [Authorize]
+<PageTitle>Courses</PageTitle>
+
+<section class="courses">
+    <div class="container">
+        <div class="header">
+            <h1>Courses</h1>
+            <form id="form-filters">
+                <select class="input-search-group">
+                    <option>All categories</option>
+                </select>
+                <div class="input-search-group">
+                    <input id="searchQuery" name="SearchQuery" placeholder="Search courses" />
+                    <i class="fa-regular fa-search"></i>
+                </div>
+            </form>
+        </div>
+
+        <div class="course-items">
+            @if (courses == null)
+            {
+                <p><em>No courses found. Please wait...</em></p>
+            }
+            else
+            {
+
+                @foreach (var course in courses)
+                {
+                    <div class="course">
+                        <a asp-action="Details" asp-controller="Courses" asp-route-id="@course.Id">
+                            @if (course.IsBestSeller)
+                            {
+                                <div class="bestseller">Best Seller</div>
+                            }
+                            <button class="btn-box btn-circle bookmark"><i class="fa-regular fa-bookmark">d</i></button>
+                            <img src="~/images/courses/@course.Image" alt="@course.Title" />
+                            <div class="content">
+                                <h5 class="title">@course.Title</h5>
+                                <p class="author">@course.Author</p>
+                                <div class="pricing">
+                                    @if (!string.IsNullOrEmpty(course.DiscountPrice))
+                                    {
+                                        <div class="discount">@course.DiscountPrice</div>
+                                    }
+                                    <div class="original @(!string.IsNullOrEmpty(course.DiscountPrice)? "discount-enabled" : "")">@course.Price</div>
+                                </div>
+                                <div class="footer">
+                                    <div class="hours">
+                                        <i class="fa-regular fa-clock"></i> @course.Hours hours
+                                    </div>
+                                    <div class="likes">
+                                        <i class="fa-regular fa-thumbs-up"></i>@course.LikesInProcent (@course.LikesInNumbers)
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+</section>
+
+
+@code {
+    private CourseModel[]? courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            courses = await Http.GetFromJsonAsync<CourseModel[]>(Environment.GetEnvironmentVariable("COURSES_APIURI"));
+        }
+
+        catch(Exception ex)
+        {
+        }
+
+    }
+
+    private class CourseModel
+    {
+        public int Id { get; set; }
+
+        public bool IsBestSeller { get; set; }
+
+        public string Image { get; set; } = null!;
+
+        public string Title { get; set; } = null!;
+
+        public string Author { get; set; } = null!;
+
+        public string Price { get; set; } = null!;
+
+        public string? DiscountPrice { get; set; }
+
+        public string Hours { get; set; } = null!;
+
+        public string LikesInProcent { get; set; } = null!;
+
+        public string LikesInNumbers { get; set; } = null!;
+    }
+}

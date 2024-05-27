@@ -1,0 +1,50 @@
+[
+  {
+    "outputFile": "wwwroot/css/_site.css",
+    "inputFile": "wwwroot/css/_site.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  },
+  {
+    "outputFile": "wwwroot/css/site.css",
+    "inputFile": "wwwroot/css/site.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  },
+  {
+    "outputFile": "wwwroot/site.css",
+    "inputFile": "wwwroot/site.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  },
+  {
+    "outputFile": "wwwroot/css/signin.css",
+    "inputFile": "wwwroot/css/signin.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  },
+  {
+    "outputFile": "wwwroot/css/signup.css",
+    "inputFile": "wwwroot/css/signup.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  },
+  {
+    "outputFile": "wwwroot/css/home.css",
+    "inputFile": "wwwroot/css/home.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  },
+  {
+    "outputFile": "wwwroot/css/courses.css",
+    "inputFile": "wwwroot/css/courses.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  },
+  {
+    "outputFile": "wwwroot/css/account.css",
+    "inputFile": "wwwroot/css/account.scss",
+    "sourceMap": false,
+    "useNodeSass": false
+  }
+]

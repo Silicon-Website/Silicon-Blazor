@@ -57,7 +57,7 @@ else
 
             try
             {
-                var response = await Http.PostAsync(Environment.GetEnvironmentVariable("FILEPROVIDER_API_URI"), content);
+                var response = await Http.PostAsync(Environment.GetEnvironmentVariable("COURSES_APIURI"), content);
 
                 if (response.IsSuccessStatusCode)
                 {

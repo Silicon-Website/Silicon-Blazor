@@ -5,7 +5,7 @@
 
     <div class="container">
 
-            <Frontend.Components.Sections.SideBar />
+            <Frontend.Components.Sections.SideBar user="user" />
         <div class="form-content">
             @Body
         </div>
@@ -13,3 +13,21 @@
     </div>
 
 </section>
+
+@code{
+    [CascadingParameter]
+    private ApplicationUser user { get; set; } = default!;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserDataAsync();
+    }
+
+    private async Task LoadUserDataAsync()
+    {
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
+    }
+}

@@ -10,7 +10,7 @@
 <PageTitle>Account Details</PageTitle>
 
 
-<EditForm Model="BasicInfo" OnValidSubmit="OnValidSubmitAsync" method="post">
+<EditForm Model="BasicInfo" FormName="basicinfo" OnValidSubmit="OnValidSubmitBasic" method="post">
 
     <div class="basic-info">
         <span class="success-message">@StatusMessage</span>
@@ -61,7 +61,7 @@
     </div>
 </EditForm>
 
-<EditForm Model="AddressInfo" OnValidSubmit="OnValidSubmitAsync" method="post">
+<EditForm Model="AddressInfo" FormName="addressinfo" OnValidSubmit="OnValidSubmitAddress" method="post">
 
     <div class="address">
 
@@ -117,16 +117,15 @@
 </EditForm>
 
 @code {
-    private ApplicationUser user = default!;
+    [CascadingParameter]
+    private ApplicationUser user { get; set; } = default!;
     private string? StatusMessage { get; set; }
     private string? Email;
     private string? PhoneNumber;
 
+
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
-    [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
 
     private BasicInfoModel BasicInfo = new BasicInfoModel();
     private AddressInfoModel AddressInfo = new AddressInfoModel();
@@ -136,12 +135,12 @@
 
         [Display(Name = "First name", Prompt = "Enter your first name", Order = 0)]
         [Required(ErrorMessage = "Firstname is required")]
-        public string FirstName { get; set; } = null!;
+        public string FirstName { get; set; } = "";
 
 
         [Display(Name = "Last name", Prompt = "Enter your last name", Order = 1)]
         [Required(ErrorMessage = "Lastname is required")]
-        public string LastName { get; set; } = null!;
+        public string LastName { get; set; } = "";
 
 
         [DataType(DataType.EmailAddress)]
@@ -149,7 +148,7 @@
         [RegularExpression(@"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z",
         ErrorMessage = "Invalid email address")]
         [Required(ErrorMessage = "Email is required")]
-        public string Email { get; set; } = null!;
+        public string Email { get; set; } = "";
 
         [Display(Name = "Phone", Prompt = "Enter your phone", Order = 3)]
         public string? PhoneNumber { get; set; }
@@ -165,34 +164,22 @@
 
         [Display(Name = "Address line 1", Prompt = "Enter your address line", Order = 0)]
         [Required(ErrorMessage = "Address is required")]
-        public string AddressLine_1 { get; set; } = null!;
+        public string AddressLine_1 { get; set; } = "";
 
         [Display(Name = "Address line 2", Prompt = "Enter your second address line", Order = 1)]
         public string? AddressLine_2 { get; set; }
 
         [Display(Name = "Postal code", Prompt = "Enter your postal code", Order = 2)]
         [Required(ErrorMessage = "Postal code is required")]
-        public string PostalCode { get; set; } = null!;
+        public string PostalCode { get; set; } = "";
 
         [Display(Name = "City", Prompt = "Enter your city", Order = 3)]
         [Required(ErrorMessage = "City is required")]
-        public string City { get; set; } = null!;
+        public string City { get; set; } = "";
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        using (var dbContext = new ApplicationDbContext(null))
-        {
-            var user = await UserManager.GetUserAsync(HttpContext.User);
-            Email = await UserManager.GetUserNameAsync(user);
-            PhoneNumber = await UserManager.GetPhoneNumberAsync(user);
 
-            Input.PhoneNumber ??= PhoneNumber;
-        }
-
-    }
-
-    private async Task OnValidSubmitAsync()
+    private async Task OnValidSubmitBasic()
     {
         var user = await UserManager.GetUserAsync(HttpContext.User);
 
@@ -203,6 +190,34 @@
             user.Email = BasicInfo.Email;
             user.PhoneNumber = BasicInfo.PhoneNumber;
             user.Bio = BasicInfo.Bio;
+
+            var result = await UserManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                StatusMessage = "Your profile has been updated";
+            }
+            else
+            {
+                StatusMessage = "Failed to update profile";
+            }
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+    }
+
+    private async Task OnValidSubmitAddress()
+    {
+        var user = await UserManager.GetUserAsync(HttpContext.User);
+
+        if (user != null)
+        {
+
+            if (user.Address == null)
+            {
+                user.Address = new AddressEntity();
+            }
+
             user.Address.AddressLine_1 = AddressInfo.AddressLine_1;
             user.Address.AddressLine_2 = AddressInfo.AddressLine_2;
             user.Address.PostalCode = AddressInfo.PostalCode;
@@ -222,11 +237,6 @@
 
         await SignInManager.RefreshSignInAsync(user);
     }
-
-    private sealed class InputModel
-    {
-        [Phone]
-        [Display(Name = "Phone number")]
-        public string? PhoneNumber { get; set; }
-    }
 }
+
+

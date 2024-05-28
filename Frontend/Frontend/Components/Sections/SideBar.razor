@@ -28,17 +28,13 @@ else
 }
 
 @code {
-    private ApplicationUser user = default!;
+    [Parameter]
+    public ApplicationUser user { get; set; } = default!;
     private MultipartFormDataContent uploadModel = new MultipartFormDataContent();
     private IBrowserFile? selectedFile;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadUserDataAsync();
-    }
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {

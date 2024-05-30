@@ -117,8 +117,8 @@
 </EditForm>
 
 @code {
-    [CascadingParameter]
-    private ApplicationUser user { get; set; } = default!;
+    [Parameter]
+    public ApplicationUser user { get; set; } = default!;
     private string? StatusMessage { get; set; }
     private string? Email;
     private string? PhoneNumber;
@@ -177,7 +177,6 @@
         [Required(ErrorMessage = "City is required")]
         public string City { get; set; } = "";
     }
-
 
     private async Task OnValidSubmitBasic()
     {

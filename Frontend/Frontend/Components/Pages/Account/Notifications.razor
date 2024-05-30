@@ -1,0 +1,93 @@
+﻿@page "/account/notifications"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Notifications</PageTitle>
+
+<h2>Notifications</h2>
+
+<EditForm Model="Subscriber" FormName="subscribe" method="post">
+
+    <span class="success-message">@StatusMessage</span>
+
+    <div class="content">
+
+        <div>
+            <div>
+                <InputCheckbox id="toggle" @bind-Value="IsSubscribed" @onchange="ToggleSubscription" />
+                <label class="slider round" for="toggle"></label>
+            </div>
+        </div>
+
+        <div class="description">
+            <h6>Subscribe to Newsletter</h6>
+            <p class="text-s">Nec, posuere non felis duis massa vitae aliquet interdum scelerisque. Neque ullamcorper.</p>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private bool IsSubscribed { get; set; }
+
+    private string? StatusMessage { get; set; }
+    private SubscriberEntity Subscriber = new SubscriberEntity();
+
+    [CascadingParameter]
+    private HttpContext httpContext { get; set; } = default!;
+    public ApplicationUser user { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current authenticated user using UserManager
+        user = await UserManager.GetUserAsync(httpContext.User);
+        if (user != null)
+        {
+            // Check if the user is already subscribed
+            var response = await Http.GetFromJsonAsync<SubscriberEntity>($"https://webapi-win23jsbackend-sarahtibblin.azurewebsites.net/api/Subscribe/{user.Email}");
+            if (response != null)
+            {
+                IsSubscribed = true;
+            }
+        }
+    }
+
+    private async Task ToggleSubscription(ChangeEventArgs e)
+    {
+        var user = await UserManager.GetUserAsync(httpContext.User);
+        if (user != null)
+        {
+            IsSubscribed = (bool)e.Value;
+
+            if (IsSubscribed)
+            {
+                var entity = new SubscriberEntity { Email = user.Email, DailyNewsLetter = true };
+                var response = await Http.PostAsJsonAsync("https://webapi-win23jsbackend-sarahtibblin.azurewebsites.net/api/Subscribe", entity);
+                if (!response.IsSuccessStatusCode)
+                {
+                    StatusMessage = "Subscribed successfully";
+                }
+            }
+            else
+            {
+                var response = await Http.DeleteAsync($"https://webapi-win23jsbackend-sarahtibblin.azurewebsites.net/api/Subscribe?email={user.Email}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    StatusMessage = "Unsubscribed successfully";
+                }
+            }
+        }
+    }
+    public class SubscriberEntity
+    {
+        public string Email { get; set; } = null!;
+
+        public bool DailyNewsLetter { get; set; }
+    }
+
+}

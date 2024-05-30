@@ -106,7 +106,7 @@
             FirstName = Input.FirstName,
             LastName = Input.LastName,
             UserName = Input.Email, 
-            Email = Input.Email
+            Email = Input.Email,
         };
 
         if ( await UserManager.Users.AnyAsync(x => x.Email == user.Email))
@@ -120,6 +120,11 @@
         if (!result.Succeeded)
         {
             return;
+        }
+
+        if (!await UserManager.IsInRoleAsync(user, "User"))
+        {
+            await UserManager.AddToRoleAsync(user, "User");
         }
 
         Logger.LogInformation("User created a new account with password.");

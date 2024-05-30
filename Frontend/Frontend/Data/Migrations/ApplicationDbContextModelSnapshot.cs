@@ -47,7 +47,7 @@ namespace Frontend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("Frontend.Data.ApplicationUser", b =>

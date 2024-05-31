@@ -1,6 +1,11 @@
 ﻿@page "/courses"
+@using GraphQL
+@using System.Text.Json.Serialization
+@using System.Text.Json
+@using static System.Net.WebRequestMethods
 @attribute [StreamRendering]
 @attribute [Authorize]
+@inject HttpClient Http
 <PageTitle>Courses</PageTitle>
 
 <section class="courses">
@@ -35,7 +40,7 @@
                                 <div class="bestseller">Best Seller</div>
                             }
                             <button class="btn-box btn-circle bookmark"><i class="fa-regular fa-bookmark">d</i></button>
-                            <img src="~/images/courses/@course.Image" alt="@course.Title" />
+                            <img src="@course.Image" alt="@course.Title" />
                             <div class="content">
                                 <h5 class="title">@course.Title</h5>
                                 <p class="author">@course.Author</p>
@@ -66,22 +71,48 @@
 
 
 @code {
-    private CourseModel[]? courses;
+
+    private List<CourseEntity> courses;
+
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            courses = await Http.GetFromJsonAsync<CourseModel[]>(Environment.GetEnvironmentVariable("COURSES_APIURI"));
-        }
 
-        catch(Exception ex)
+        var query = new GraphQLRequest
+            {
+                Query = "{ getCourses { id isBestSeller image title author price discountPrice hours likesInProcent likesInNumbers } }"
+            };
+        var response = await Http.PostAsJsonAsync("http://localhost:7268/api/graphql", query);
+
+        if (response.IsSuccessStatusCode)
         {
+            var result = await response.Content.ReadFromJsonAsync<DynamicGraphQLResponse>();
+            courses = result.Data.GetProperty("getCourses").EnumerateArray()
+                .Select(course => new CourseEntity
+                    {
+                        Id = course.GetProperty("id").GetInt32(),
+                        IsBestSeller = course.GetProperty("isBestSeller").GetBoolean(),
+                        Image = course.GetProperty("image").GetString(),
+                        Title = course.GetProperty("title").GetString(),
+                        Author = course.GetProperty("author").GetString(),
+                        Price = course.GetProperty("price").GetString(),
+                        DiscountPrice = course.GetProperty("discountPrice").GetString(),
+                        Hours = course.GetProperty("hours").GetString(),
+                        LikesInProcent = course.GetProperty("likesInProcent").GetString(),
+                        LikesInNumbers = course.GetProperty("likesInNumbers").GetString()
+                    })
+                .ToList();
         }
 
     }
 
-    private class CourseModel
+    public class DynamicGraphQLResponse
+    {
+        [JsonPropertyName("data")]
+        public JsonElement Data { get; set; }
+    }
+
+    private class CourseEntity
     {
         public int Id { get; set; }
 
@@ -103,4 +134,5 @@
 
         public string LikesInNumbers { get; set; } = null!;
     }
+
 }

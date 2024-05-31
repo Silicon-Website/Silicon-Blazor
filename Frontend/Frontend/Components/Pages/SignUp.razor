@@ -122,13 +122,6 @@
             return;
         }
 
-        if (!await UserManager.IsInRoleAsync(user, "User"))
-        {
-            await UserManager.AddToRoleAsync(user, "User");
-        }
-
-        Logger.LogInformation("User created a new account with password.");
-
         await SignInManager.SignInAsync(user, isPersistent: false);
         NavigationManager.NavigateTo(ReturnUrl ?? "/");
     }

@@ -1,18 +1,15 @@
 ﻿@page "/account/notifications"
 @using System.Net.Http.Json
-@inject HttpClient Http
 @inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
 @inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
 
-@attribute [StreamRendering]
 @rendermode InteractiveServer
 
 <PageTitle>Notifications</PageTitle>
 
 <h2>Notifications</h2>
 
-<EditForm Model="Subscriber" FormName="subscribe" method="post">
 
     <span class="success-message">@StatusMessage</span>
 
@@ -20,7 +17,7 @@
 
         <div>
             <div>
-                <InputCheckbox id="toggle" @bind-Value="IsSubscribed" @onchange="ToggleSubscription" />
+                <InputCheckbox id="toggle" @bind-Value="IsSubscribed" @onclick="ToggleSubscription" />
                 <label class="slider round" for="toggle"></label>
             </div>
         </div>
@@ -30,25 +27,25 @@
             <p class="text-s">Nec, posuere non felis duis massa vitae aliquet interdum scelerisque. Neque ullamcorper.</p>
         </div>
     </div>
-</EditForm>
 
 @code {
-    private bool IsSubscribed { get; set; }
+    public bool IsSubscribed { get; set; } = false;
 
     private string? StatusMessage { get; set; }
     private SubscriberEntity Subscriber = new SubscriberEntity();
 
     [CascadingParameter]
+    private ApplicationUser user { get; set; } = default!;
+
+    [CascadingParameter]
     private HttpContext httpContext { get; set; } = default!;
-    public ApplicationUser user { get; set; } = default!;
+
 
     protected override async Task OnInitializedAsync()
     {
-        // Get the current authenticated user using UserManager
-        user = await UserManager.GetUserAsync(httpContext.User);
+
         if (user != null)
         {
-            // Check if the user is already subscribed
             var response = await Http.GetFromJsonAsync<SubscriberEntity>($"https://webapi-win23jsbackend-sarahtibblin.azurewebsites.net/api/Subscribe/{user.Email}");
             if (response != null)
             {
@@ -57,12 +54,14 @@
         }
     }
 
-    private async Task ToggleSubscription(ChangeEventArgs e)
+    private async Task ToggleSubscription()
     {
-        var user = await UserManager.GetUserAsync(httpContext.User);
+        //Problem med att httpContext = null, vet ej varför..
+       var user = await UserManager.GetUserAsync(httpContext.User);
+
         if (user != null)
         {
-            IsSubscribed = (bool)e.Value;
+            IsSubscribed = !IsSubscribed;
 
             if (IsSubscribed)
             {
@@ -75,7 +74,7 @@
             }
             else
             {
-                var response = await Http.DeleteAsync($"https://webapi-win23jsbackend-sarahtibblin.azurewebsites.net/api/Subscribe?email={user.Email}");
+                var response = await Http.DeleteAsync($"https://webapi-win23jsbackend-sarahtibblin.azurewebsites.net/api/Subscribe/{user.Email}");
                 if (!response.IsSuccessStatusCode)
                 {
                     StatusMessage = "Unsubscribed successfully";

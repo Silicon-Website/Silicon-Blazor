@@ -26,14 +26,14 @@ namespace Frontend.Migrations
                 name: "FirstName",
                 table: "AspNetUsers",
                 type: "nvarchar(max)",
-                nullable: false,
+                nullable: true,
                 defaultValue: "");
 
             migrationBuilder.AddColumn<string>(
                 name: "LastName",
                 table: "AspNetUsers",
                 type: "nvarchar(max)",
-                nullable: false,
+                nullable: true,
                 defaultValue: "");
 
             migrationBuilder.AddColumn<string>(

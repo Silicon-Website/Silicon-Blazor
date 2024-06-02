@@ -1,7 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Frontend.Data
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 
 @inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@rendermode InteractiveServer
 
 <nav>
     <NavLink class="text-m" href="/account/details">
@@ -12,16 +15,32 @@
         <i class="fa-solid fa-arrow-left-from-bracket"></i>Notifications
     </NavLink>
 
-    <NavLink class="text-m" href="/">
+    <NavLink class="text-m" href="/" @onclick="SignOut">
         <i class="fa-solid fa-arrow-left-from-bracket"></i>Sign Out
     </NavLink>
 </nav>
 
 @code {
+    [Parameter]
+    public ApplicationUser user { get; set; } = default!;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+ 
+
+
     private bool hasExternalLogins;
 
     protected override async Task OnInitializedAsync()
     {
         hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+    }
+
+    async Task SignOut()
+    {
+        if (SignInManager.IsSignedIn(HttpContext.User))
+        {
+            await SignInManager.SignOutAsync();
+        }
     }
 }
